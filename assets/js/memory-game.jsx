@@ -20,6 +20,7 @@ export default function todo_init(root) {
 class Todo extends React.Component {
   constructor(props) {
     super(props);
+    var timer;
     this.state = {
       items:
       [{name: "one-1", flipped: false, value:1, matched:0},
@@ -27,7 +28,6 @@ class Todo extends React.Component {
       {name: "one-match", flipped: false, value:1, matched:0},
       {name: "two-match", flipped: false, value:2, matched:0},
       {name: "three", flipped: false, value:3, matched:0}],
-      score: 0,
       numberOfMatches: 0,
       gameOver: false,
       flippedCount: 0
@@ -35,12 +35,10 @@ class Todo extends React.Component {
   }
 
 
-
-
   markItem(name) {
     let value = 0;
-    var resetFlip = false;
     let matchCount = 0;
+    var flips = 0;
 
     // flip items that match the name
     let flipName = _.map(this.state.items, (item) => {
@@ -54,6 +52,38 @@ class Todo extends React.Component {
     });
 
     this.setState({ items: flipName });
+
+    if(this.state.flippedCount == 0) {
+      this.setState({flippedCount: 1});
+    } else if (this.state.flippedCount == 1) {
+      // once two items have been clicked, flip non-matches over
+      this.timer = setTimeout(() => {
+        let reset = _.map(this.state.items, (item) => {
+          if (!item.matched) {
+            return _.extend(item, {flipped: false});
+          }
+          else {
+            return item;
+          }
+        });
+        this.setState({ items: reset });
+      }, 1500)
+      this.setState({flippedCount: 2});
+      // this.state.flippedCount = 0;
+    } else if (this.state.flippedCount > 1) {
+
+      let thirdClick = _.map(this.state.items, (item) => {
+        if (!item.matched && item.name != name) {
+          return _.extend(item, {flipped: false});
+        }
+        else {
+          return item;
+        }
+      });
+      this.setState({ items: thirdClick });
+      this.setState({flippedCount: 1});
+      clearTimeout(this.timer);
+    }
 
     // check for matches
     let findMatch = _.map(this.state.items, (item) => {
@@ -76,44 +106,9 @@ class Todo extends React.Component {
       this.setState({numberOfMatches: increaseMatches});
     }
 
-    if(this.state.flippedCount == 0) {
-      this.setState({flippedCount: 1});
-    } else if (this.state.flippedCount == 1) {
-      // this.flipback();
-      // setTimeout(this.flipback, 1000);
-      setTimeout(() => {
-        let reset = _.map(this.state.items, (item) => {
-          if (!item.matched) {
-            return _.extend(item, {flipped: false});
-          }
-          else {
-            return item;
-          }
-        });
-        this.setState({ items: reset });
-      }, 2000)
-      this.state.flippedCount = 0;
-      // setTimeout(this.flipback, 1000); // maybe set this to a boolean flag and when its true execute something else
-    }
-
-    if(resetFlip) {
-      alert("you hit reset flip");
-    }
 
   }
 
-  // // check for matches
-  // checkMatch(value) {
-  //   let xs = _.map(this.state.items, (item) => {
-  //     if (item.value == value && item.flipped) {
-  //       return _.extend(item, {flipped: true});
-  //     }
-  //     else {
-  //       return item;
-  //     }
-  //   });
-  //   this.setState({ items: xs });
-  // }
 
   flipback(list) {
     // alert("flipped count is 2");
@@ -149,12 +144,20 @@ class Todo extends React.Component {
   }
 }
 
+
+
+const matched = {
+  background: 'orange'
+};
+
 function TodoItem(props) {
   let item = props.item;
+  if (item.matched) {
+    return <li><button style={matched}>{item.value}</button></li>;
+
+  }
   if (item.flipped) {
-
-    return <li><button>{item.value} , {item.matched} (done)</button></li>;
-
+    return <li><button>{item.value}</button></li>;
   }
   else {
     return <li><button onClick={() => props.markItem(item.name)}>flip</button></li>
