@@ -1,6 +1,8 @@
 import React from 'react';
 import ReactDOM from 'react-dom';
 import _ from 'lodash';
+// added
+import $ from 'jquery';
 
 export default function game_init(root) {
   ReactDOM.render(<Starter />, root);
@@ -27,7 +29,7 @@ class Starter extends React.Component {
     </div>;
 
     let blank = <div className="column">
-      <p>Nothing here.</p>
+      <p>Nothing here!</p>
     </div>;
 
     if (this.state.left) {
@@ -44,4 +46,3 @@ class Starter extends React.Component {
     }
   }
 }
-
