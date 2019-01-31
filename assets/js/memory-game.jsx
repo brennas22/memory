@@ -51,11 +51,10 @@ class Todo extends React.Component {
 
 reset() {
   const shuffle = require('fisher-yates-shuffle');
-
   const listOfItems = this.state.items;
   const shuffledDeck = shuffle(listOfItems);
 
-  let flipName = _.map(this.state.items, (item) => {
+  let flipName = _.map(shuffledDeck, (item) => {
     return _.extend(item, {flipped: false}, {matched: false});
   });
 
