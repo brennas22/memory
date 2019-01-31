@@ -21,7 +21,6 @@ class Todo extends React.Component {
   constructor(props) {
     super(props);
     var timer;
-    const shuffle = require('fisher-yates-shuffle');
 
     const listOfItems =
     [{name: "1", flipped: false, value:"A", matched:false},
@@ -41,7 +40,7 @@ class Todo extends React.Component {
     {name: "8", flipped: false, value:"H", matched:false},
     {name: "8m", flipped: false, value:"H", matched:false}];
 
-  const shuffledDeck = shuffle(listOfItems);
+  const shuffledDeck = _.shuffle(listOfItems);
   this.state = {
     items: shuffledDeck,
     clicks: 0,
@@ -50,10 +49,9 @@ class Todo extends React.Component {
 }
 
 reset() {
-  const shuffle = require('fisher-yates-shuffle');
 
   const listOfItems = this.state.items;
-  const shuffledDeck = shuffle(listOfItems);
+  const shuffledDeck = _.shuffle(listOfItems);
 
   let flipName = _.map(shuffledDeck, (item) => {
     return _.extend(item, {flipped: false}, {matched: false});
