@@ -24,30 +24,27 @@ class Todo extends React.Component {
     const shuffle = require('fisher-yates-shuffle');
 
     const listOfItems =
-    [{name: "1", flipped: false, value:"A", matched:0},
-    {name: "2", flipped: false, value:"B", matched:0},
-    {name: "1m", flipped: false, value:"A", matched:0},
-    {name: "2m", flipped: false, value:"B", matched:0},
-    {name: "3", flipped: false, value:"C", matched:0},
-    {name: "3m", flipped: false, value:"C", matched:0},
-    {name: "4", flipped: false, value:"D", matched:0},
-    {name: "4m", flipped: false, value:"D", matched:0},
-    {name: "5", flipped: false, value:"E", matched:0},
-    {name: "5m", flipped: false, value:"E", matched:0},
-    {name: "6", flipped: false, value:"F", matched:0},
-    {name: "6m", flipped: false, value:"F", matched:0},
-    {name: "7", flipped: false, value:"G", matched:0},
-    {name: "7m", flipped: false, value:"G", matched:0},
-    {name: "8", flipped: false, value:"H", matched:0},
-    {name: "8m", flipped: false, value:"H", matched:0}
+    [{name: "1", flipped: false, value:"A", matched:false},
+    {name: "2", flipped: false, value:"B", matched:false},
+    {name: "1m", flipped: false, value:"A", matched:false},
+    {name: "2m", flipped: false, value:"B", matched:false},
+    {name: "3", flipped: false, value:"C", matched:false},
+    {name: "3m", flipped: false, value:"C", matched:false},
+    {name: "4", flipped: false, value:"D", matched:false},
+    {name: "4m", flipped: false, value:"D", matched:false},
+    {name: "5", flipped: false, value:"E", matched:false},
+    {name: "5m", flipped: false, value:"E", matched:false},
+    {name: "6", flipped: false, value:"F", matched:false},
+    {name: "6m", flipped: false, value:"F", matched:false},
+    {name: "7", flipped: false, value:"G", matched:false},
+    {name: "7m", flipped: false, value:"G", matched:false},
+    {name: "8", flipped: false, value:"H", matched:false},
+    {name: "8m", flipped: false, value:"H", matched:false}];
 
-
-  ];
   const shuffledDeck = shuffle(listOfItems);
   this.state = {
     items: shuffledDeck,
     clicks: 0,
-    gameOver: false,
     flippedCount: 0
   };
 }
@@ -131,7 +128,7 @@ markItem(name) {
     // make changes to matches
     let changeMatches = _.map(this.state.items, (item) => {
       if (item.value == value && item.flipped) {
-        return _.extend(item, {matched: 1});
+        return _.extend(item, {matched: true});
       }
       else {
         return item;
@@ -180,7 +177,7 @@ function ResetButton(props) {
 function TodoItem(props) {
   let item = props.item;
   if (item.matched) {
-    return <button className="button button-outline">{item.value}</button>;
+    return <button className="button button-clear">{item.value}</button>;
 
   }
   if (item.flipped) {
