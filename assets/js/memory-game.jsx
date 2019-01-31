@@ -21,17 +21,54 @@ class Todo extends React.Component {
   constructor(props) {
     super(props);
     var timer;
+    const shuffle = require('fisher-yates-shuffle');
+
+    const listOfItems =
+      [{name: "1", flipped: false, value:1, matched:0},
+      {name: "2", flipped: false, value:2, matched:0},
+      {name: "1m", flipped: false, value:1, matched:0},
+      {name: "2m", flipped: false, value:2, matched:0},
+      {name: "3", flipped: false, value:3, matched:0},
+      {name: "3m", flipped: false, value:3, matched:0},
+      {name: "4", flipped: false, value:4, matched:0},
+      {name: "4m", flipped: false, value:4, matched:0},
+      {name: "5", flipped: false, value:5, matched:0},
+      {name: "5m", flipped: false, value:5, matched:0},
+      {name: "6", flipped: false, value:6, matched:0},
+      {name: "6m", flipped: false, value:6, matched:0},
+      {name: "7", flipped: false, value:7, matched:0},
+      {name: "7m", flipped: false, value:7, matched:0},
+      {name: "8", flipped: false, value:8, matched:0},
+      {name: "8m", flipped: false, value:8, matched:0}
+
+
+    ];
+    const shuffledDeck = shuffle(listOfItems);
     this.state = {
-      items:
-      [{name: "one-1", flipped: false, value:1, matched:0},
-      {name: "two", flipped: false, value:2, matched:0},
-      {name: "one-match", flipped: false, value:1, matched:0},
-      {name: "two-match", flipped: false, value:2, matched:0},
-      {name: "three", flipped: false, value:3, matched:0}],
+      items: shuffledDeck,
       numberOfMatches: 0,
       gameOver: false,
       flippedCount: 0
     };
+  }
+
+  reset() {
+    console.log("you reset");
+    const shuffle = require('fisher-yates-shuffle');
+
+    const listOfItems = this.state.items;
+    const shuffledDeck = shuffle(listOfItems);
+    this.state = {
+      items: shuffledDeck,
+      numberOfMatches: 0,
+      gameOver: false,
+      flippedCount: 0
+    };
+    let flipName = _.map(this.state.items, (item) => {
+        return _.extend(item, {flipped: false}, {matched: false});
+    });
+
+    this.setState({ items: flipName });
   }
 
 
@@ -110,41 +147,55 @@ class Todo extends React.Component {
   }
 
 
-  flipback(list) {
-    // alert("flipped count is 2");
-    // flip items that match the name
-    let reset = _.map(this.state.items, (item) => {
-      if (!item.matched) {
-        return _.extend(item, {flipped: false});
-      }
-      else {
-        return item;
-      }
-    });
-
-    // return reset;
-    this.setState({ items: reset });
-    // return true;
-    // resetFlip = true;
-  }
+  // flipback(list) {
+  //   // alert("flipped count is 2");
+  //   // flip items that match the name
+  //   let reset = _.map(this.state.items, (item) => {
+  //     if (!item.matched) {
+  //       return _.extend(item, {flipped: false});
+  //     }
+  //     else {
+  //       return item;
+  //     }
+  //   });
+  //
+  //   // return reset;
+  //   this.setState({ items: reset });
+  //   // return true;
+  //   // resetFlip = true;
+  // }
 
   render() {
     let item_list = _.map(this.state.items, (item, ii) => {
       return <TodoItem item={item} markItem={this.markItem.bind(this)} key={ii} />;
     });
+
+    let firstRow = item_list.slice(0,4);
+    let secondRow = item_list.slice(4,8);
+    let thirdRow = item_list.slice(8,12);
+    let fourthRow = item_list.slice(12,16);
+
+    let resetButton = <ResetButton reset={this.reset.bind(this)}/>;
     return (
       <div>
       <h2>Memory Game:</h2>
       <ul>
-      {item_list}
+      {firstRow}<br/>
+      {secondRow}<br/>
+      {thirdRow}<br/>
+      {fourthRow}
       </ul>
+      {resetButton}
+
 
       </div>
     );
   }
 }
 
-
+function ResetButton(props) {
+  return <a onClick={() => props.reset()}>reset</a>
+}
 
 const matched = {
   background: 'orange'
@@ -153,14 +204,14 @@ const matched = {
 function TodoItem(props) {
   let item = props.item;
   if (item.matched) {
-    return <li><button style={matched}>{item.value}</button></li>;
+    return <button style={matched}>{item.value}</button>;
 
   }
   if (item.flipped) {
-    return <li><button>{item.value}</button></li>;
+    return <button>{item.value}</button>;
   }
   else {
-    return <li><button onClick={() => props.markItem(item.name)}>flip</button></li>
+    return <button onClick={() => props.markItem(item.name)}>flip</button>
   }
 
 }
