@@ -1,0 +1,12 @@
+<script>
+  window.playerName = "<%= @player %>";
+</script>
+
+<div class="row">
+  <div class="column">
+    <h2>Player: <%= @player %></h2>
+    <div id="root">
+      React app loading...
+    </div>
+  </div>
+</div>

@@ -1,51 +1,52 @@
-// // import React from 'react';
-// // import ReactDOM from 'react-dom';
-// // import _ from 'lodash';
-// // // added
-// // import $ from 'jquery';
-// //
-// // export default function game_init(root) {
-// //   ReactDOM.render(<Memory />, root);
-// // }
-// //
 import React from 'react';
 import ReactDOM from 'react-dom';
 import _ from 'lodash';
 import $ from 'jquery';
 
-export default function todo_init(root) {
-  ReactDOM.render(<Todo />, root);
+export default function todo_init(root, channel) {
+  ReactDOM.render(<Todo channel={channel}/>, root);
 }
 
 class Todo extends React.Component {
   constructor(props) {
     super(props);
     var timer;
+    //
+    // const listOfItems =
+    // [{name: "1", flipped: false, value:"A", matched:false},
+    // {name: "2", flipped: false, value:"B", matched:false},
+    // {name: "1m", flipped: false, value:"A", matched:false},
+    // {name: "2m", flipped: false, value:"B", matched:false},
+    // {name: "3", flipped: false, value:"C", matched:false},
+    // {name: "3m", flipped: false, value:"C", matched:false},
+    // {name: "4", flipped: false, value:"D", matched:false},
+    // {name: "4m", flipped: false, value:"D", matched:false},
+    // {name: "5", flipped: false, value:"E", matched:false},
+    // {name: "5m", flipped: false, value:"E", matched:false},
+    // {name: "6", flipped: false, value:"F", matched:false},
+    // {name: "6m", flipped: false, value:"F", matched:false},
+    // {name: "7", flipped: false, value:"G", matched:false},
+    // {name: "7m", flipped: false, value:"G", matched:false},
+    // {name: "8", flipped: false, value:"H", matched:false},
+    // {name: "8m", flipped: false, value:"H", matched:false}];
 
-    const listOfItems =
-    [{name: "1", flipped: false, value:"A", matched:false},
-    {name: "2", flipped: false, value:"B", matched:false},
-    {name: "1m", flipped: false, value:"A", matched:false},
-    {name: "2m", flipped: false, value:"B", matched:false},
-    {name: "3", flipped: false, value:"C", matched:false},
-    {name: "3m", flipped: false, value:"C", matched:false},
-    {name: "4", flipped: false, value:"D", matched:false},
-    {name: "4m", flipped: false, value:"D", matched:false},
-    {name: "5", flipped: false, value:"E", matched:false},
-    {name: "5m", flipped: false, value:"E", matched:false},
-    {name: "6", flipped: false, value:"F", matched:false},
-    {name: "6m", flipped: false, value:"F", matched:false},
-    {name: "7", flipped: false, value:"G", matched:false},
-    {name: "7m", flipped: false, value:"G", matched:false},
-    {name: "8", flipped: false, value:"H", matched:false},
-    {name: "8m", flipped: false, value:"H", matched:false}];
+    this.state = {
+      items: [],
+      clicks: 0,
+      item1: null,
+      item2: null
+    };
 
-  const shuffledDeck = _.shuffle(listOfItems);
-  this.state = {
-    items: shuffledDeck,
-    clicks: 0,
-    flippedCount: 0
-  };
+    this.channel = props.channel;
+
+    this.channel
+      .join()
+      .receive("ok", this.update.bind(this))
+      .receive("error", resp => {console.log("Unable to join", resp);});
+}
+
+update(view) {
+  this.setState(view.player);
 }
 
 reset() {
@@ -56,10 +57,9 @@ reset() {
   let flipName = _.map(shuffledDeck, (item) => {
     return _.extend(item, {flipped: false}, {matched: false});
   });
-
+  // _.assign({}, {flipped:false})
   this.setState({ items: flipName });
   this.setState({ clicks: 0 });
-
 }
 
 
@@ -99,7 +99,6 @@ markItem(name) {
       this.setState({ items: reset });
     }, 800)
     this.setState({flippedCount: 2});
-    // this.state.flippedCount = 0;
   } else if (this.state.flippedCount > 1) {
 
     let thirdClick = _.map(this.state.items, (item) => {
