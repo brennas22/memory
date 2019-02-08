@@ -1,66 +1,38 @@
 defmodule Memory.Game do
-  def max_lives do
-    6
-  end
 
   def new do
     %{
       items: init_items(),
       clicks: 0,
-      item1: nil,
-      item2: nil
     }
+  end
+
+  def init_items() do
+    # make a deck??
   end
 
   def client_view(game) do
-    ws = String.graphemes(game.word)
-    gs = game.guesses
 
-    %{
-      skel: skeleton(ws, gs),
-      goods: Enum.filter(gs, &(Enum.member?(ws, &1))),
-      bads:  Enum.filter(gs, &(!Enum.member?(ws, &1))),
-      max_lives: max_lives(),
-    }
   end
 
-  def guess(game, letter) do
-    if letter == "z" do
-      raise "That's not a real letter"
-    end
 
-    gs = game.guesses
-    |> MapSet.new()
-    |> MapSet.put(letter)
-    |> MapSet.to_list
-
-    ws = String.graphemes(game.word)
-    bads = Enum.filter(gs, &(!Enum.member?(ws, &1)))
-
-    lives = max_lives() - length(bads)
-
-    game
-    |> Map.put(:guesses, gs)
-    |> Map.put(:lives, lives)
+  def markItem(game, name) do
+    # flip an item up if it's been clicked
   end
 
-  def skeleton(word, guesses) do
-    Enum.map word, fn cc ->
-      if Enum.member?(guesses, cc) do
-        cc
-      else
-        "_"
-      end
-    end
+  def checkMatch() do
+    # check to see if there's a match also flipped
+    # if there is mark them as matched
+    # if not, flip them back over
   end
 
-  def next_word do
-    words = ~w{
-      horse snake jazz violin
-      muffin cookie pizza sandwich
-      house train clock
-      parsnip marshmallow
-    }
-    Enum.random(words)
+  def markMatched(game) do
+    # mark the matched items
+    # keep them flipped visibly
   end
+
+  def flipAll(game) do
+    # flip items back over (if not matched)
+  end
+
 end

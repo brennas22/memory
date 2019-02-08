@@ -29,112 +29,140 @@ class Todo extends React.Component {
     // {name: "7m", flipped: false, value:"G", matched:false},
     // {name: "8", flipped: false, value:"H", matched:false},
     // {name: "8m", flipped: false, value:"H", matched:false}];
-
+    this.channel = props.channel;
     this.state = {
       items: [],
       clicks: 0,
-      item1: null,
-      item2: null
     };
 
-    this.channel = props.channel;
-
-    this.channel
-      .join()
-      .receive("ok", this.update.bind(this))
-      .receive("error", resp => {console.log("Unable to join", resp);});
+    this.channel.join()
+            .receive("ok", this.gotView.bind(this))
+            .receive("error", resp => { alert("Unable to join", resp) });
 }
 
-update(view) {
-  this.setState(view.player);
-}
-
-reset() {
-
-  const listOfItems = this.state.items;
-  const shuffledDeck = _.shuffle(listOfItems);
-
-  let flipName = _.map(shuffledDeck, (item) => {
-    return _.extend(item, {flipped: false}, {matched: false});
-  });
-  // _.assign({}, {flipped:false})
-  this.setState({ items: flipName });
-  this.setState({ clicks: 0 });
-}
-
-
-markItem(name) {
-  let value = 0;
-  let matchCount = 0;
-  var flips = 0;
-  let addClick = this.state.clicks + 1;
-  this.setState({ clicks: addClick});
-
-  // flip items that match the name
-  let flipName = _.map(this.state.items, (item) => {
-    if (item.name == name) {
-      value = item.value;
-      return _.extend(item, {flipped: true});
-    }
-    else {
-      return item;
-    }
-  });
-
-  this.setState({ items: flipName });
-
-  if(this.state.flippedCount == 0) {
-    this.setState({flippedCount: 1});
-  } else if (this.state.flippedCount == 1) {
-    // once two items have been clicked, flip non-matches over
-    this.timer = setTimeout(() => {
-      let reset = _.map(this.state.items, (item) => {
-        if (!item.matched) {
-          return _.extend(item, {flipped: false});
+  gotView(view) {
+    if (this.countFlips(view.game) == 2) {
+        this.setState(view.game,
+          () => setTimeout(() => this.flipDown(), 1000));
+        } else {
+            this.setState(view.game);
         }
-        else {
-          return item;
-        }
-      });
-      this.setState({ items: reset });
-    }, 800)
-    this.setState({flippedCount: 2});
-  } else if (this.state.flippedCount > 1) {
-
-    let thirdClick = _.map(this.state.items, (item) => {
-      if (!item.matched && item.name != name) {
-        return _.extend(item, {flipped: false});
-      }
-      else {
-        return item;
-      }
-    });
-    this.setState({ items: thirdClick });
-    this.setState({flippedCount: 1});
-    clearTimeout(this.timer);
   }
 
-  // check for matches
-  let findMatch = _.map(this.state.items, (item) => {
-    if (item.value == value && item.flipped) {
-      matchCount = matchCount + 1;
-    }
-  });
-
-  if(matchCount == 2) {
-    // make changes to matches
-    let changeMatches = _.map(this.state.items, (item) => {
-      if (item.value == value && item.flipped) {
-        return _.extend(item, {matched: true});
-      }
-      else {
-        return item;
+  countFlips(game) {
+    let flippedCount = 0;
+    let findMatch = _.map(game.items, (item) => {
+      if (item.flipped) {
+        flippedCount++
       }
     });
+    return flippedCount;
+  }
+
+  markItem(item) {
+    this.channel.push("markItem", { item: name })
+            .receive("ok", this.gotView.bind(this));
+  }
+
+  flipDown() {
+    this.channel.push("flipDown").receive("ok", this.gotView.bind(this));
+  }
+
+  reset() {
+        this.channel.push("reset")
+            .receive("ok", this.gotView.bind(this));
   }
 
 
-}
+
+
+
+// reset_old() {
+//
+//   const listOfItems = this.state.items;
+//   const shuffledDeck = _.shuffle(listOfItems);
+//
+//   let flipName = _.map(shuffledDeck, (item) => {
+//     return _.extend(item, {flipped: false}, {matched: false});
+//   });
+//   // _.assign({}, {flipped:false})
+//   this.setState({ items: flipName });
+//   this.setState({ clicks: 0 });
+// }
+//
+//
+// markItem(name) {
+//   let value = 0;
+//   let matchCount = 0;
+//   var flips = 0;
+//   let addClick = this.state.clicks + 1;
+//   this.setState({ clicks: addClick});
+//
+//   // flip items that match the name
+//   let flipName = _.map(this.state.items, (item) => {
+//     if (item.name == name) {
+//       value = item.value;
+//       return _.extend(item, {flipped: true});
+//     }
+//     else {
+//       return item;
+//     }
+//   });
+//
+//   this.setState({ items: flipName });
+//
+//   if(this.state.flippedCount == 0) {
+//     this.setState({flippedCount: 1});
+//   } else if (this.state.flippedCount == 1) {
+//     // once two items have been clicked, flip non-matches over
+//     this.timer = setTimeout(() => {
+//       let reset = _.map(this.state.items, (item) => {
+//         if (!item.matched) {
+//           return _.extend(item, {flipped: false});
+//         }
+//         else {
+//           return item;
+//         }
+//       });
+//       this.setState({ items: reset });
+//     }, 800)
+//     this.setState({flippedCount: 2});
+//   } else if (this.state.flippedCount > 1) {
+//
+//     let thirdClick = _.map(this.state.items, (item) => {
+//       if (!item.matched && item.name != name) {
+//         return _.extend(item, {flipped: false});
+//       }
+//       else {
+//         return item;
+//       }
+//     });
+//     this.setState({ items: thirdClick });
+//     this.setState({flippedCount: 1});
+//     clearTimeout(this.timer);
+//   }
+//
+//   // check for matches
+//   let findMatch = _.map(this.state.items, (item) => {
+//     if (item.value == value && item.flipped) {
+//       matchCount = matchCount + 1;
+//     }
+//   });
+//
+//   if(matchCount == 2) {
+//     // make changes to matches
+//     let changeMatches = _.map(this.state.items, (item) => {
+//       if (item.value == value && item.flipped) {
+//         return _.extend(item, {matched: true});
+//       }
+//       else {
+//         return item;
+//       }
+//     });
+//   }
+//
+//
+// }
 
 
 render() {
@@ -168,7 +196,7 @@ render() {
 }
 
 function ResetButton(props) {
-  return <button className="button button-clear" onClick={() => props.reset()}>reset</button>
+  return <button className="button button-clear" onClick={props.reset}>reset</button>
 }
 
 function TodoItem(props) {

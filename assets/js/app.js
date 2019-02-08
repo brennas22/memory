@@ -21,6 +21,6 @@ import game_init from "./memory-game";
 
 $(() => {
   let root = $('#root')[0];
-  let channel = socket.channel("player:" + window.playerName, {});
-  game_init(root,channel);
+  let channel = socket.channel("games:" + window.gameName, {});
+  game_init(root, channel);
 });
